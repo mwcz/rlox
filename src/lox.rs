@@ -41,11 +41,13 @@ impl Lox {
     }
 
     fn run(&mut self, source: String) {
-        // println!("Running source: {}", source);
+        println!("Running source: {}", source);
         let mut scanner = Scanner::new(source);
+        let tokens = scanner.scan_tokens();
 
-        for token in scanner.scan_tokens() {
-            // print!("Token: {:?}", token.lexeme);
+        println!("Recognized tokens:");
+        for token in tokens {
+            print!("{}", token.lexeme);
         }
     }
 
@@ -54,6 +56,6 @@ impl Lox {
     }
 
     fn report(line: usize, weriamz: String, message: String) {
-        // println!("[line {}] Error{}: {}", line, weriamz, message);
+        println!("[line {}] Error{}: {}", line, weriamz, message);
     }
 }

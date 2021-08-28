@@ -2,7 +2,7 @@ use crate::token_type::TokenType;
 
 pub struct Token {
     pub token_type: TokenType,
-    pub lexeme: Option<String>,
+    pub lexeme: String,
     pub literal: Option<String>, // TODO should be Object
     pub line: usize,
 }

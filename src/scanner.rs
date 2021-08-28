@@ -25,7 +25,7 @@ impl Scanner {
 
     pub fn scan_token(&mut self) {
         if let Some(c) = self.advance() {
-            // println!("scanned token: {:?}", c);
+            println!("scanned token: {:?}", c);
             match c {
                 '(' => self.add_token(TokenType::LeftParen, None),
                 ')' => self.add_token(TokenType::RightParen, None),
@@ -100,7 +100,7 @@ impl Scanner {
 
         self.tokens.push(Token {
             token_type: TokenType::Eof,
-            lexeme: None,
+            lexeme: "".to_string(),
             literal: None,
             line: self.line,
         });
@@ -124,10 +124,10 @@ impl Scanner {
 
     fn add_token(&mut self, token_type: TokenType, literal: Option<String>) {
         let lexeme = self.source[self.start..self.current].to_string();
-        // println!(" ↳ add_token text {}", lexeme);
+        println!(" ↳ add_token text {}", lexeme);
         self.tokens.push(Token {
             token_type,
-            lexeme: Some(lexeme),
+            lexeme,
             literal,
             line: self.line,
         });

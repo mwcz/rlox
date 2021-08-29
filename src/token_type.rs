@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 /// The types of Lox tokens.
 pub enum TokenType {
     // Single-character types

@@ -83,6 +83,31 @@ impl Scanner {
                 '\r' => {}
                 '\t' => {}
                 '\n' => self.line += 1,
+                '"' => {
+                    println!("\" encountered");
+                    let next = self.peek();
+                    println!("followed by: {}", next.unwrap());
+                    while self.peek() != Some('"') && !self.is_at_end() {
+                        println!("next is not \" and we're not at the end yet");
+                        if self.peek() == Some('\n') {
+                            println!("next is \\n");
+                            self.line += 1;
+                        }
+                        self.advance();
+                        println!("advance");
+                    }
+                    println!("next is \" or we're at the end now");
+                    if self.is_at_end() {
+                        println!("we're at the end, string is unterminated, uh oh");
+                        Lox::error(self.line, "Unterminated string.".to_string());
+                    } else {
+                        println!("found ending \"");
+                        self.advance();
+                        let value = self.source[self.start + 1..self.current - 1].to_string();
+                        println!("string value is: {}", value);
+                        self.add_token(TokenType::String, Some(value));
+                    }
+                }
                 _ => Lox::error(self.line, format!["Unexpected character: {}", c]),
             }
         }

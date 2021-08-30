@@ -45,9 +45,8 @@ impl Lox {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens();
 
-        println!("Recognized tokens:");
         for token in tokens {
-            print!("{}", token.lexeme);
+            println!("{:?}", token);
         }
     }
 

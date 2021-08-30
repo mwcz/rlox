@@ -25,7 +25,7 @@ impl Scanner {
 
     pub fn scan_token(&mut self) {
         if let Some(c) = self.advance() {
-            println!("scanned token: {:?}", c);
+            // println!("scanned token: {:?}", c);
             match c {
                 '(' => self.add_token(TokenType::LeftParen),
                 ')' => self.add_token(TokenType::RightParen),
@@ -84,16 +84,32 @@ impl Scanner {
                 '\t' => {}
                 '\n' => self.line += 1,
                 '"' => self.string(),
-                '0'..='9' => {
-                    if self.is_digit(Some(c)) {
-                        self.number();
-                    } else {
-                        Lox::error(self.line, format!["Unexpected character: {}", c]);
-                    }
-                }
+                '0'..='9' => self.number(),
+                'a'..='z' | 'A'..='Z' => self.identifier(),
                 _ => Lox::error(self.line, format!["Unexpected character: {}", c]),
             }
         }
+    }
+
+    fn identifier(&mut self) {
+        while Scanner::is_alphanumeric(self.peek()) {
+            self.advance();
+        }
+
+        self.add_token(
+            TokenType::Identifier(self.source[self.start..self.current].to_string()).to_keyword(),
+        );
+    }
+
+    fn is_alpha(c: Option<char>) -> bool {
+        return match c {
+            Some(c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_',
+            None => false,
+        };
+    }
+
+    fn is_alphanumeric(c: Option<char>) -> bool {
+        Scanner::is_alpha(c) || Scanner::is_digit(c)
     }
 
     fn string(&mut self) {
@@ -108,18 +124,18 @@ impl Scanner {
         } else {
             self.advance();
             let value = self.source[self.start + 1..self.current - 1].to_string();
-            self.add_token(TokenType::String(value));
+            self.add_token(TokenType::LoxString(value));
         }
     }
 
     fn number(&mut self) {
-        while self.is_digit(self.peek()) {
+        while Scanner::is_digit(self.peek()) {
             self.advance();
         }
 
-        if self.peek() == Some('.') && self.is_digit(self.peek_next()) {
+        if self.peek() == Some('.') && Scanner::is_digit(self.peek_next()) {
             self.advance();
-            while self.is_digit(self.peek()) {
+            while Scanner::is_digit(self.peek()) {
                 self.advance();
             }
         }
@@ -128,11 +144,10 @@ impl Scanner {
             .parse::<f64>()
             .unwrap();
 
-        println!("parsed_number {}", parsed_number);
         self.add_token(TokenType::Number(parsed_number));
     }
 
-    fn is_digit(&self, c: Option<char>) -> bool {
+    fn is_digit(c: Option<char>) -> bool {
         return match c {
             Some(c) => c >= '0' && c <= '9',
             None => false,
@@ -178,7 +193,7 @@ impl Scanner {
 
     fn add_token(&mut self, token_type: TokenType) {
         let lexeme = self.source[self.start..self.current].to_string();
-        println!(" ↳ add_token text {}", lexeme);
+        println!("add_token: {}", lexeme);
         self.tokens.push(Token {
             token_type,
             lexeme,

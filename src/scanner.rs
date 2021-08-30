@@ -27,23 +27,23 @@ impl Scanner {
         if let Some(c) = self.advance() {
             println!("scanned token: {:?}", c);
             match c {
-                '(' => self.add_token(TokenType::LeftParen, None),
-                ')' => self.add_token(TokenType::RightParen, None),
-                '{' => self.add_token(TokenType::LeftBrace, None),
-                '}' => self.add_token(TokenType::RightBrace, None),
-                ',' => self.add_token(TokenType::Comma, None),
-                '.' => self.add_token(TokenType::Dot, None),
-                '-' => self.add_token(TokenType::Minus, None),
-                '+' => self.add_token(TokenType::Plus, None),
-                ';' => self.add_token(TokenType::Semicolon, None),
-                '*' => self.add_token(TokenType::Star, None),
+                '(' => self.add_token(TokenType::LeftParen),
+                ')' => self.add_token(TokenType::RightParen),
+                '{' => self.add_token(TokenType::LeftBrace),
+                '}' => self.add_token(TokenType::RightBrace),
+                ',' => self.add_token(TokenType::Comma),
+                '.' => self.add_token(TokenType::Dot),
+                '-' => self.add_token(TokenType::Minus),
+                '+' => self.add_token(TokenType::Plus),
+                ';' => self.add_token(TokenType::Semicolon),
+                '*' => self.add_token(TokenType::Star),
                 '!' => {
                     let token_type = if self.match_next('=') {
                         TokenType::BangEqual
                     } else {
                         TokenType::BangEqual
                     };
-                    self.add_token(token_type, None);
+                    self.add_token(token_type);
                 }
                 '=' => {
                     let token_type = if self.match_next('=') {
@@ -51,7 +51,7 @@ impl Scanner {
                     } else {
                         TokenType::Equal
                     };
-                    self.add_token(token_type, None);
+                    self.add_token(token_type);
                 }
                 '<' => {
                     let token_type = if self.match_next('=') {
@@ -59,7 +59,7 @@ impl Scanner {
                     } else {
                         TokenType::Equal
                     };
-                    self.add_token(token_type, None);
+                    self.add_token(token_type);
                 }
                 '>' => {
                     let token_type = if self.match_next('=') {
@@ -67,7 +67,7 @@ impl Scanner {
                     } else {
                         TokenType::Equal
                     };
-                    self.add_token(token_type, None);
+                    self.add_token(token_type);
                 }
                 '/' => {
                     let slash_follows = self.match_next('/');
@@ -76,36 +76,19 @@ impl Scanner {
                             self.advance();
                         }
                     } else {
-                        self.add_token(TokenType::Slash, None);
+                        self.add_token(TokenType::Slash);
                     }
                 }
                 ' ' => {}
                 '\r' => {}
                 '\t' => {}
                 '\n' => self.line += 1,
-                '"' => {
-                    println!("\" encountered");
-                    let next = self.peek();
-                    println!("followed by: {}", next.unwrap());
-                    while self.peek() != Some('"') && !self.is_at_end() {
-                        println!("next is not \" and we're not at the end yet");
-                        if self.peek() == Some('\n') {
-                            println!("next is \\n");
-                            self.line += 1;
-                        }
-                        self.advance();
-                        println!("advance");
-                    }
-                    println!("next is \" or we're at the end now");
-                    if self.is_at_end() {
-                        println!("we're at the end, string is unterminated, uh oh");
-                        Lox::error(self.line, "Unterminated string.".to_string());
+                '"' => self.string(),
+                '0'..='9' => {
+                    if self.is_digit(Some(c)) {
+                        self.number();
                     } else {
-                        println!("found ending \"");
-                        self.advance();
-                        let value = self.source[self.start + 1..self.current - 1].to_string();
-                        println!("string value is: {}", value);
-                        self.add_token(TokenType::String, Some(value));
+                        Lox::error(self.line, format!["Unexpected character: {}", c]);
                     }
                 }
                 _ => Lox::error(self.line, format!["Unexpected character: {}", c]),
@@ -113,8 +96,55 @@ impl Scanner {
         }
     }
 
+    fn string(&mut self) {
+        while self.peek() != Some('"') && !self.is_at_end() {
+            if self.peek() == Some('\n') {
+                self.line += 1;
+            }
+            self.advance();
+        }
+        if self.is_at_end() {
+            Lox::error(self.line, "Unterminated string.".to_string());
+        } else {
+            self.advance();
+            let value = self.source[self.start + 1..self.current - 1].to_string();
+            self.add_token(TokenType::String(value));
+        }
+    }
+
+    fn number(&mut self) {
+        while self.is_digit(self.peek()) {
+            self.advance();
+        }
+
+        if self.peek() == Some('.') && self.is_digit(self.peek_next()) {
+            self.advance();
+            while self.is_digit(self.peek()) {
+                self.advance();
+            }
+        }
+
+        let parsed_number = self.source[self.start..self.current]
+            .parse::<f64>()
+            .unwrap();
+
+        println!("parsed_number {}", parsed_number);
+        self.add_token(TokenType::Number(parsed_number));
+    }
+
+    fn is_digit(&self, c: Option<char>) -> bool {
+        return match c {
+            Some(c) => c >= '0' && c <= '9',
+            None => false,
+        };
+    }
+
     fn peek(&self) -> Option<char> {
         self.source.chars().nth(self.current)
+    }
+
+    fn peek_next(&self) -> Option<char> {
+        self.source.chars().nth(self.current + 1)
     }
 
     pub fn scan_tokens(&mut self) -> &Vec<Token> {
@@ -126,7 +156,6 @@ impl Scanner {
         self.tokens.push(Token {
             token_type: TokenType::Eof,
             lexeme: "".to_string(),
-            literal: None,
             line: self.line,
         });
 
@@ -147,13 +176,12 @@ impl Scanner {
         return true;
     }
 
-    fn add_token(&mut self, token_type: TokenType, literal: Option<String>) {
+    fn add_token(&mut self, token_type: TokenType) {
         let lexeme = self.source[self.start..self.current].to_string();
         println!(" ↳ add_token text {}", lexeme);
         self.tokens.push(Token {
             token_type,
             lexeme,
-            literal,
             line: self.line,
         });
     }

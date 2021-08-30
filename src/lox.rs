@@ -41,7 +41,7 @@ impl Lox {
     }
 
     fn run(&mut self, source: String) {
-        println!("Running source: {}", source);
+        // println!("Running source: {}", source);
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens();
 

@@ -193,7 +193,7 @@ impl Scanner {
 
     fn add_token(&mut self, token_type: TokenType) {
         let lexeme = self.source[self.start..self.current].to_string();
-        println!("add_token: {}", lexeme);
+        // println!("add_token: {}", lexeme);
         self.tokens.push(Token {
             token_type,
             lexeme,

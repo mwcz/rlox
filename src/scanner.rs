@@ -41,7 +41,7 @@ impl Scanner {
                     let token_type = if self.match_next('=') {
                         TokenType::BangEqual
                     } else {
-                        TokenType::BangEqual
+                        TokenType::Bang
                     };
                     self.add_token(token_type);
                 }

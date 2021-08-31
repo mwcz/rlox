@@ -103,11 +103,11 @@ impl Scanner {
     }
 
     fn is_alpha(c: Option<char>) -> bool {
-        return match c {
+        match c {
             // Some(c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_',
             Some(c) => c.is_ascii_alphabetic() || c == '_',
             None => false,
-        };
+        }
     }
 
     fn is_alphanumeric(c: Option<char>) -> bool {
@@ -150,10 +150,10 @@ impl Scanner {
     }
 
     fn is_digit(c: Option<char>) -> bool {
-        return match c {
+        match c {
             Some(c) => c.is_digit(10),
             None => false,
-        };
+        }
     }
 
     fn peek(&self) -> Option<char> {
@@ -190,7 +190,7 @@ impl Scanner {
 
         self.current += 1;
 
-        return true;
+        true
     }
 
     fn add_token(&mut self, token_type: TokenType) {

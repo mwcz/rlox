@@ -150,7 +150,7 @@ impl Scanner {
 
     fn is_digit(c: Option<char>) -> bool {
         return match c {
-            Some(c) => c >= '0' && c <= '9',
+            Some(c) => c.is_digit(10),
             None => false,
         };
     }

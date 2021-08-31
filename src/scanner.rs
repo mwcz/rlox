@@ -104,7 +104,8 @@ impl Scanner {
 
     fn is_alpha(c: Option<char>) -> bool {
         return match c {
-            Some(c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_',
+            // Some(c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_',
+            Some(c) => c.is_ascii_alphabetic() || c == '_',
             None => false,
         };
     }

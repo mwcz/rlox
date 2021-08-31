@@ -4,6 +4,7 @@ mod token;
 mod token_type;
 
 use lox::Lox;
+use std::cmp::Ordering;
 use std::env::args;
 
 fn main() {
@@ -11,11 +12,9 @@ fn main() {
 
     let mut lox = Lox::new();
 
-    if args().len() > 2 {
-        println!("Usage: rlox [script]");
-    } else if args().len() == 2 {
-        lox.run_file(args().nth(1).unwrap());
-    } else {
-        lox.run_prompt();
+    match args().len().cmp(&2) {
+        Ordering::Greater => println!("Usage: rlox [script]"),
+        Ordering::Equal => lox.run_file(args().nth(1).unwrap()),
+        Ordering::Less => lox.run_prompt(),
     }
 }

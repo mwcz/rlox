@@ -55,7 +55,7 @@ impl TokenType {
     /// If this is a TokenType::Identifier, and if the Identifier's text is a keyword, return the
     /// TokenType for that keyword, otherwise return self.
     /// For example, TokenType::Identifier("var".to_string()).to_keyword() returns TokenType::Var
-    pub fn to_keyword(self) -> Self {
+    pub fn check_keyword(self) -> Self {
         match self {
             TokenType::Identifier(ref text) => match text.as_str() {
                 "and" => TokenType::And,

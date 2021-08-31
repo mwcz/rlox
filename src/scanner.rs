@@ -97,7 +97,8 @@ impl Scanner {
         }
 
         self.add_token(
-            TokenType::Identifier(self.source[self.start..self.current].to_string()).to_keyword(),
+            TokenType::Identifier(self.source[self.start..self.current].to_string())
+                .check_keyword(),
         );
     }
 

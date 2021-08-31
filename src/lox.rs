@@ -28,7 +28,7 @@ impl Lox {
         loop {
             let mut input = String::new();
             match io::stdin().read_line(&mut input) {
-                Ok(n) => {
+                Ok(_n) => {
                     self.run(input.to_string());
                     self.had_error = false;
                     // println!("{} bytes read", n);

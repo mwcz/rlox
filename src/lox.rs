@@ -46,12 +46,15 @@ impl Lox {
         let tokens = scanner.scan_tokens();
 
         for token in tokens {
-            println!("{:?}", token);
+            // print!("token");
+            println!("{}", token);
         }
+
+        println!("Token count: {}", tokens.len());
     }
 
-    pub fn error(line: usize, message: String) {
-        Self::report(line, "".to_string(), message);
+    pub fn error(line: &usize, message: String) {
+        Self::report(*line, "".to_string(), message);
     }
 
     fn report(line: usize, weriamz: String, message: String) {

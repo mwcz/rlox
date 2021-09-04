@@ -76,7 +76,36 @@ impl Scanner {
                             self.advance();
                         }
                     } else {
-                        self.add_token(TokenType::Slash);
+                        let star_follows = self.match_next(&'*');
+                        if star_follows {
+                            // nested comments must be matching
+                            // beginning of /* ... */ comment
+                            println!("COMMENT: starting /*");
+                            let mut running_comment_count = 1;
+                            while running_comment_count > 0 {
+                                println!("COMMENT: loop iter, running = {}", running_comment_count);
+                                if self.is_at_end() {
+                                    break;
+                                }
+                                if self.peek() == Some(&'/') && self.peek_next() == Some(&'*') {
+                                    running_comment_count += 1;
+                                    println!(
+                                        "COMMENT: /* found, running = {}",
+                                        running_comment_count
+                                    );
+                                    self.advance();
+                                } else if self.peek() == Some(&'*')
+                                    && self.peek_next() == Some(&'/')
+                                {
+                                    running_comment_count -= 1;
+                                    self.advance();
+                                }
+                                self.advance();
+                            }
+                        } else {
+                            // just a slash, aka divide
+                            self.add_token(TokenType::Slash);
+                        }
                     }
                 }
                 ' ' => {}

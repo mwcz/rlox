@@ -80,24 +80,18 @@ impl Scanner {
                         if star_follows {
                             // nested comments must be matching
                             // beginning of /* ... */ comment
-                            println!("COMMENT: starting /*");
-                            let mut running_comment_count = 1;
-                            while running_comment_count > 0 {
-                                println!("COMMENT: loop iter, running = {}", running_comment_count);
+                            let mut block_comment_count = 1;
+                            while block_comment_count > 0 {
                                 if self.is_at_end() {
                                     break;
                                 }
                                 if self.peek() == Some(&'/') && self.peek_next() == Some(&'*') {
-                                    running_comment_count += 1;
-                                    println!(
-                                        "COMMENT: /* found, running = {}",
-                                        running_comment_count
-                                    );
+                                    block_comment_count += 1;
                                     self.advance();
                                 } else if self.peek() == Some(&'*')
                                     && self.peek_next() == Some(&'/')
                                 {
-                                    running_comment_count -= 1;
+                                    block_comment_count -= 1;
                                     self.advance();
                                 }
                                 self.advance();
@@ -215,7 +209,7 @@ impl Scanner {
 
         self.tokens.push(Token {
             token_type: TokenType::Eof,
-            lexeme: "".to_string(),
+            lexeme: None,
             line: self.line,
         });
 
@@ -237,12 +231,12 @@ impl Scanner {
     }
 
     fn add_token(&mut self, token_type: TokenType) {
-        // println!("add_token: {}", lexeme);
         self.tokens.push(Token {
             token_type,
-            lexeme: self.source[self.start..self.current]
-                .iter()
-                .collect::<String>(),
+            lexeme: self
+                .source
+                .get(self.start..self.current)
+                .map(|v| v.iter().collect()),
             line: self.line,
         });
     }

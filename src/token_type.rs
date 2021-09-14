@@ -2,6 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 #[allow(dead_code)]
 /// The types of Lox tokens.
+#[derive(Debug)]
 pub enum TokenType {
     // Single-character types
     LeftParen,
